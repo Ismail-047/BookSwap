@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer utilities {
+    .active {
+        @apply text-indigo-600
+    }
+
+    .loading {
+        @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-100 bg-200%
+    }
+}

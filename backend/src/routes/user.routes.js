@@ -1,0 +1,16 @@
+import express from "express";
+import { subscribeToNewsletters, unsubscribeToNewsletters, updateUserProfile } from "../controllers/user.controllers.js";
+import { authenticateToken } from "../middlewares/authenticateToken.js";
+import { upload } from "../middlewares/multer.js";
+
+const router = express.Router();
+
+
+router.patch("/update-user-profile", authenticateToken, upload.array("image", 1), updateUserProfile);
+
+
+router.post("/subscribe-to-newsletters", subscribeToNewsletters);
+router.delete("/unsubscribe-to-newsletters", unsubscribeToNewsletters);
+
+
+export default router;
