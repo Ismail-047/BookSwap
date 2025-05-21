@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react"
 
 function Intro({
     heading,
@@ -16,7 +16,7 @@ function Intro({
                 <h2 className="text-3xl font-black text-white">
                     {heading?.toUpperCase()}
                 </h2>
-                <p className="text-white mt-2">
+                <p className="text-white mt-2 font-medium">
                     {description}
                 </p>
             </div>

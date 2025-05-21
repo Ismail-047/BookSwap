@@ -29,7 +29,7 @@ import BookDetailPage from "./pages/BookDetailPage";
 import MainLoadingPage from "./pages/MainLoadingPage";
 import ResetPassword from "./components/Auth/ResetPassword";
 import RequestPasswordReset from "./pages/Auth/RequestPasswordReset";
-
+import NotificationPage from "./pages/NotificatioPage";
 
 const App = () => {
 
@@ -111,6 +111,10 @@ const App = () => {
         />
         <Route path="/profile"
           element={isAuthenticated ? <Profile /> : <Navigate to={"/"} replace />}
+        />
+
+        <Route path="/notifications"
+          element={isAuthenticated ? <NotificationPage /> : <Navigate to={"/"} replace />}
         />
 
         <Route path="/reset-password" element={<ResetPassword />} />
