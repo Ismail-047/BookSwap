@@ -111,8 +111,7 @@ const useBookStore = create((set) => ({
 
     createBookRequest: async (bookId, message) => {
         try {
-            const response = await axiosInstance.post("/api/v1/book-requests", {
-                bookId,
+            const response = await axiosInstance.post(`/api/v1/books/request-book/${bookId}`, {
                 message
             });
 
@@ -154,10 +153,17 @@ const useBookStore = create((set) => ({
         }
     },
 
-    addReview: async ({ bookId, rating, comment }) => {
+    addReview: async (bookId, rating, comment) => {
+        if (!bookId) {
+            toast.error("Book ID is required.");
+            return;
+        }
+        if (rating === 0) {
+            toast.error("Please provide a rating.");
+            return;
+        }
         try {
-            const response = await axiosInstance.post("/api/v1/reviews", {
-                bookId,
+            const response = await axiosInstance.post(`/api/v1/books/add-review/${bookId}`, {
                 rating,
                 comment
             });
@@ -171,7 +177,7 @@ const useBookStore = create((set) => ({
 
     getReviewsForBook: async (bookId) => {
         try {
-            const response = await axiosInstance.get(`/api/v1/reviews/${bookId}`);
+            const response = await axiosInstance.get(`/api/v1/books/get-reviews/${bookId}`);
 
             set({ bookReviews: response?.data?.data || [] });
             toast.success(response?.data?.message);

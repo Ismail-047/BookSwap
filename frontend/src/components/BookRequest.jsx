@@ -1,14 +1,19 @@
 import React, { useState } from "react";
-import { MessageCircle, Send, BookOpen, User } from "lucide-react";
+import { MessageCircle, Send, BookOpen, User, Loader2 } from "lucide-react";
 import useBookStore from "../zustand/book.store";
 
 const BookRequest = () => {
     const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const { bookToRequest, setBookToRequest } = useBookStore();
+    const { bookToRequest, setBookToRequest, createBookRequest } = useBookStore();
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        setLoading(true);
+        createBookRequest(bookToRequest._id, message);
+        setLoading(false);
 
         setMessage("");
     };
@@ -29,14 +34,14 @@ const BookRequest = () => {
                 <div className="p-6">
                     <div className="flex mb-6">
                         <div className="w-24 h-36 bg-blue-100 rounded overflow-hidden flex-shrink-0">
-                            <img src={bookToRequest.coverImage} alt={bookToRequest.title} className="w-full h-full object-cover" />
+                            <img src={bookToRequest?.image} alt={bookToRequest.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="ml-4">
                             <h2 className="text-xl font-semibold text-indigo-900">{bookToRequest.title}</h2>
                             <p className="text-gray-600">{bookToRequest.author}</p>
                             <div className="mt-2 flex items-center text-sm text-gray-600">
                                 <User size={16} className="mr-1" />
-                                <span>Owned by {bookToRequest.owner.name}</span>
+                                <span>Owned by {bookToRequest.owner.firstName} {bookToRequest.owner.lastName}</span>
                             </div>
                         </div>
                     </div>
@@ -65,10 +70,20 @@ const BookRequest = () => {
                         <div className="flex justify-end">
                             <button
                                 type="submit"
-                                className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
-                                disabled={!message.trim()}
+                                className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!message.trim() || loading}
                             >
-                                <Send size={16} className="mr-2" /> Submit Request
+                                {loading ? (
+                                    <>
+                                        <Loader2 size={16} className="mr-2 animate-spin" />
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send size={16} className="mr-2" />
+                                        Submit Request
+                                    </>
+                                )}
                             </button>
                         </div>
                     </form>

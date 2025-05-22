@@ -5,6 +5,8 @@ import { deleteUploadedFiles } from "../utils/auth.utils.js";
 import { sendRes } from "../utils/responseHelper.js";
 import { logError } from "../utils/comman.utils.js";
 import { BookRequest } from "../models/bookrequest.model.js";
+import { Review } from "../models/review.model.js";
+import { Notification } from "../models/notification.model.js";
 
 export const addNewBook = async (req, res) => {
   try {
@@ -54,7 +56,7 @@ export const addNewBook = async (req, res) => {
 export const getAllBooks = async (req, res) => {
   try {
     const books = await Book.find()
-      .populate("owner", "_id firstName lastName")
+      .populate("owner", "_id firstName lastName profilePic")
       .sort({ createdAt: -1 });
 
     return sendRes(res, 200, "Books retrieved successfully", books);
@@ -119,24 +121,34 @@ export const updateBook = async (req, res) => {
 
 export const createBookRequest = async (req, res) => {
   try {
-    const { bookId, message } = req.body;
+    const { id } = req.params;
+    const { message } = req.body;
     const loggedInUser = req.user;
 
-    const book = await Book.findById(bookId);
+    const book = await Book.findById(id);
     if (!book) return sendRes(res, 404, "Book not found");
 
-    if (book.owner.toString() === loggedInUser._id) return sendRes(res, 400, "You cannot request your own book");
+    if (book.owner.toString() === loggedInUser._id) {
+      return sendRes(res, 400, "You cannot request your own book");
+    }
 
-    const bookRequest = await BookRequest.create({
-      book: bookId,
-      requester: req.user.id,
-      owner: book.owner,
-      message,
-    });
+    // Create book request and notification concurrently
+    const [bookRequest] = await Promise.all([
+      BookRequest.create({
+        book: id,
+        requester: loggedInUser._id,
+        owner: book.owner,
+        message,
+      }),
+      Notification.create({
+        from: loggedInUser._id,
+        to: book.owner,
+        message: `${loggedInUser.name} has requested your book.`,
+      })
+    ]);
 
     return sendRes(res, 201, "Book request created successfully", bookRequest);
-  }
-  catch (error) {
+  } catch (error) {
     logError("createBookRequest", error);
     return sendRes(res, 500, "Something went wrong on our side. Please try again.");
   }
@@ -193,11 +205,14 @@ export const updateBookRequestStatus = async (req, res) => {
   }
 };
 
-
 export const addReview = async (req, res) => {
   try {
-    const { bookId, rating, comment } = req.body;
-    const userId = req.user.id;
+    const { bookId } = req.params;
+    const { rating, comment } = req.body;
+    const userId = req.user._id;
+
+    console.log(bookId, rating, comment, userId);
+
 
     const book = await Book.findById(bookId);
     if (!book) return sendRes(res, 404, "Book not found");
@@ -224,10 +239,23 @@ export const getReviewsForBook = async (req, res) => {
     const { bookId } = req.params;
 
     const reviews = await Review.find({ book: bookId })
-      .populate("user", "name email") // Customize as needed
+      .populate("user", "firstName lastName profilePic")
       .sort({ createdAt: -1 });
 
-    return sendRes(res, 200, "Reviews fetched successfully", reviews);
+    // Transform the reviews to match the expected format
+    const formattedReviews = reviews.map(review => ({
+      _id: review._id,
+      user: {
+        firstName: review.user.firstName,
+        lastName: review.user.lastName,
+        profilePicture: review.user.profilePic || ""
+      },
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt
+    }));
+
+    return sendRes(res, 200, "Reviews fetched successfully", formattedReviews);
   } catch (error) {
     logError("getReviewsForBook", error);
     return sendRes(res, 500, "Something went wrong on our side. Please try again.");

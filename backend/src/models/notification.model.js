@@ -12,6 +12,11 @@ const notificationSchema = new Schema({
     type: String,
     required: true
   },
+  to: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
   isRead: {
     type: Boolean,
     default: false

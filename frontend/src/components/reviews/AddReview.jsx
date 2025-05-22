@@ -1,121 +1,66 @@
 import React, { useState } from "react";
-import { Star, MessageCircle, Send, X, AlertCircle, Loader2 } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { Star, MessageCircle, Send, X, Loader2 } from "lucide-react";
+import useBookStore from "../../zustand/book.store";
+import { toast } from "react-hot-toast";
 
 const AddReview = ({
-  bookId,
-  onSuccess,
-  onCancel,
-  onError
+  onCancel
 }) => {
-  const [rating, setRating] = useState(0);
-  const [hoveredRating, setHoveredRating] = useState(0);
-  const [error, setError] = useState(null);
-  const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { id } = useParams();
+  const { addReview } = useBookStore();
 
-  // Mock authentication - replace with your actual auth store
-  const isAuthenticated = true; // Replace with: useAuthStore().isAuthenticated;
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isAuthenticated) {
-      setError("You must be logged in to add a review.");
-      return;
-    }
-    if (rating === 0) {
-      setError("Please provide a rating.");
+
+    if (!id) {
+      toast.error("Book ID is missing. Please try again.");
       return;
     }
 
     setLoading(true);
-    setError(null);
+    await addReview(id, rating, comment);
+    setLoading(false);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Replace with actual API call:
-      /*
-      const response = await axios.post(`/api/v1/books/${bookId}/reviews`, {
-        rating,
-        comment
-      }, {
-        withCredentials: true
-      });
-
-      if (response.status === 201) {
-        setRating(0);
-        setComment("");
-        if (onSuccess) {
-          onSuccess(response.data.data);
-        }
-      } else {
-        setError(response.data.message || "Failed to add review.");
-        if (onError) onError(response.data.message || "Failed to add review.");
-      }
-      */
-
-      // Mock success
-      const mockReview = {
-        _id: Date.now().toString(),
-        rating,
-        comment,
-        user: {
-          firstName: "You",
-          lastName: "",
-          profilePicture: "/api/placeholder/40/40"
-        },
-        createdAt: new Date().toISOString()
-      };
-
-      setRating(0);
-      setComment("");
-      if (onSuccess) {
-        onSuccess(mockReview);
-      }
-
-    } catch (err) {
-      console.error("Review submission error:", err);
-      const errorMessage = err.response?.data?.error || "Failed to add review.";
-      setError(errorMessage);
-      if (onError) onError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+    setRating(0);
+    setComment("");
   };
 
-  const StarRating = () => {
-    return (
-      <div className="flex items-center space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            className="transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 rounded"
-            onClick={() => setRating(star)}
-            onMouseEnter={() => setHoveredRating(star)}
-            onMouseLeave={() => setHoveredRating(0)}
-          >
-            <Star
-              size={28}
-              className={`${star <= (hoveredRating || rating)
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-300 hover:text-yellow-200"
-                } transition-colors duration-200`}
-            />
-          </button>
-        ))}
-        {rating > 0 && (
-          <span className="ml-3 text-sm font-medium text-gray-600 bg-yellow-50 px-2 py-1 rounded-full">
-            {rating} star{rating !== 1 ? 's' : ''}
-          </span>
-        )}
-      </div>
-    );
-  };
+  const StarRating = () => (
+    <div className="flex items-center space-x-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          className="transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 rounded"
+          onClick={() => setRating(star)}
+          onMouseEnter={() => setHoveredRating(star)}
+          onMouseLeave={() => setHoveredRating(0)}
+        >
+          <Star
+            size={28}
+            className={`${star <= (hoveredRating || rating)
+              ? "text-yellow-400 fill-yellow-400"
+              : "text-gray-300 hover:text-yellow-200"
+              } transition-colors duration-200`}
+          />
+        </button>
+      ))}
+      {rating > 0 && (
+        <span className="ml-3 text-sm font-medium text-gray-600 bg-yellow-50 px-2 py-1 rounded-full">
+          {rating} star{rating !== 1 ? 's' : ''}
+        </span>
+      )}
+    </div>
+  );
 
   return (
-    <div className="">
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
@@ -139,13 +84,6 @@ const AddReview = ({
       </div>
 
       <div className="space-y-6">
-        {/* Error Message */}
-        {error && (
-          <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-            <span className="text-sm text-red-700">{error}</span>
-          </div>
-        )}
 
         {/* Rating Section */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -172,6 +110,7 @@ const AddReview = ({
               rows="4"
               placeholder="What did you think about this book? Share your experience with other readers..."
               className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:ring-opacity-50 transition-all duration-200 resize-none"
+              maxLength={500}
             />
             <div className="absolute bottom-3 right-3 text-xs text-gray-400">
               {comment.length}/500
@@ -213,15 +152,6 @@ const AddReview = ({
           </button>
         </div>
 
-        {/* Authentication Notice */}
-        {!isAuthenticated && (
-          <div className="flex items-center justify-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
-            <span className="text-sm text-yellow-800">
-              Please log in to submit a review
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Tips Section */}

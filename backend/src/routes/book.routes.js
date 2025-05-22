@@ -13,14 +13,14 @@ router.patch("/update-book/:id", authenticateToken, upload.array("image", 1), up
 
 router.delete("/delete-book/:id", authenticateToken, deleteBookById);
 
-router.post("/request", authenticateToken, createBookRequest);
+router.post("/request-book/:id", authenticateToken, createBookRequest);
 
-router.get("/", authenticateToken, getBookRequests);
+router.get("/get-book-requests", authenticateToken, getBookRequests);
 
-router.patch("/status", authenticateToken, updateBookRequestStatus);
+router.patch("/update-book-request-status", authenticateToken, updateBookRequestStatus);
 
-router.post("/", authenticateToken, addReview);
+router.post("/add-review/:bookId", authenticateToken, addReview);
 
-router.get("/:bookId", getReviewsForBook);
+router.get("/get-reviews/:bookId", getReviewsForBook);
 
 export default router;
