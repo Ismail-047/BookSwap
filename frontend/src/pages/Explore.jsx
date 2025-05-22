@@ -5,6 +5,7 @@ import { Book, Heart, Inbox, Plus } from "lucide-react";
 import BookCardsLoader from "../components/BookCardsLoader";
 import BookCard from "../components/BookCard";
 import Intro from "../components/Intro";
+import QuickActions from "../components/QuickActions";
 
 const Explore = () => {
     const { isGettingAllBooks, allBooks } = useBookStore();
@@ -52,23 +53,7 @@ const Explore = () => {
                 </div>
 
                 {/* Quick Links Section */}
-                <div className="bg-blue-50 rounded-lg p-6">
-                    <h2 className="text-2xl font-bold text-indigo-800 mb-4">Quick Links</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <Link to="/my-books" className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
-                            <Book className="h-6 w-6 text-indigo-600 mr-2" />
-                            <span>My Books</span>
-                        </Link>
-                        <Link to="/wishlist" className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
-                            <Heart className="h-6 w-6 text-indigo-600 mr-2" />
-                            <span>Wishlist</span>
-                        </Link>
-                        <Link to="/my-requests" className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
-                            <Inbox className="h-6 w-6 text-indigo-600 mr-2" />
-                            <span>Requests</span>
-                        </Link>
-                    </div>
-                </div>
+                <QuickActions />
             </div>
         </>
     );

@@ -3,6 +3,7 @@ import useAuthStore from "../zustand/authStore";
 import { Mail, Lock, User, Phone, MapPin, Camera, Pencil, ArrowRight, UserRoundPlus } from "lucide-react";
 import { ThemeButton } from "../components/Buttons";
 import useUserStore from "../zustand/userStore";
+import Intro from "../components/Intro";
 
 const ProfilePage = () => {
 
@@ -129,145 +130,153 @@ const ProfilePage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Intro
+        heading={`${currentUser?.firstName + " " + currentUser?.lastName}'s Profile`}
+        description="Manage your profile information and preferences."
+      />
 
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Header */}
-          <div className="flex justify-between items-center p-6 border-b border-gray-100">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-800">Welcome, {currentUser.firstName}</h1>
-              <p className="text-sm text-gray-500">{formattedDate}</p>
+      <div className="min-h-screen bg-gray-50">
+
+        <div className="animate-themeAnimationLg max-w-4xl mx-auto p-6">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-800">Welcome, {currentUser.firstName}</h1>
+                <p className="text-sm text-gray-500">{formattedDate}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-blue-500 overflow-hidden">
+                {profilePic ? (
+                  <img src={profilePic} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-white text-xs font-bold">
+                    {currentUser.firstName && currentUser.lastName ?
+                      `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}` : ""}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="h-10 w-10 rounded-full bg-blue-500 overflow-hidden">
-              {profilePic ? (
-                <img src={profilePic} alt="Profile" className="h-full w-full object-cover" />
-              ) : (
-                <div className="h-full w-full flex items-center justify-center text-white text-xs font-bold">
-                  {currentUser.firstName && currentUser.lastName ?
-                    `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}` : ""}
-                </div>
-              )}
-            </div>
-          </div>
 
-          {/* Profile Banner */}
-          <div className="h-32 bg-gradient-to-r from-sky-100 to-indigo-100 relative" />
+            {/* Profile Banner */}
+            <div className="h-32 bg-gradient-to-r from-sky-100 to-indigo-100 relative" />
 
-          {/* Profile Content */}
-          <div className="px-6 pb-6">
+            {/* Profile Content */}
+            <div className="px-6 pb-6">
 
-            <div className="flex items-end justify-between -mt-16 mb-2">
+              <div className="flex items-end justify-between -mt-16 mb-2">
 
-              <div className="flex items-end">
+                <div className="flex items-end">
 
-                <div className="relative">
+                  <div className="relative">
 
-                  <div className="h-24 w-24 rounded-full border-4 border-white bg-blue-100 flex items-center justify-center text-blue-500 text-2xl overflow-hidden shadow-lg">
-                    {profilePic ? (
-                      <img src={preview || profilePic} alt="Profile" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="font-bold">
-                        {currentUser.firstName && currentUser.lastName ?
-                          `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}` : ""}
-                      </div>
+                    <div className="h-24 w-24 rounded-full border-4 border-white bg-blue-100 flex items-center justify-center text-blue-500 text-2xl overflow-hidden shadow-lg">
+                      {profilePic ? (
+                        <img src={preview || profilePic} alt="Profile" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="font-bold">
+                          {currentUser.firstName && currentUser.lastName ?
+                            `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}` : ""}
+                        </div>
+                      )}
+                    </div>
+
+                    {isEditing && (
+                      <label className="absolute bottom-0 right-0 bg-indigo-400 text-white p-2.5 rounded-full shadow-md cursor-pointer hover:bg-indigo-600">
+                        <Pencil size={18} />
+                        <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+                      </label>
                     )}
+
                   </div>
 
-                  {isEditing && (
-                    <label className="absolute bottom-0 right-0 bg-indigo-400 text-white p-2.5 rounded-full shadow-md cursor-pointer hover:bg-indigo-600">
-                      <Pencil size={18} />
-                      <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
-                    </label>
-                  )}
-
                 </div>
 
               </div>
 
-            </div>
+              <div className="ml-4">
+                <h2 className="text-xl font-semibold text-gray-800">{currentUser.firstName} {currentUser.lastName}</h2>
+                <p className="text-gray-500 text-sm">{currentUser.email}</p>
+              </div>
 
-            <div className="ml-4">
-              <h2 className="text-xl font-semibold text-gray-800">{currentUser.firstName} {currentUser.lastName}</h2>
-              <p className="text-gray-500 text-sm">{currentUser.email}</p>
-            </div>
+              {/* Form Content */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-6">
 
-            {/* Form Content */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-6">
-
-              <TextInput label="First Name"
-                name="firstName"
-                value={currentUser.firstName}
-                onChange={handleChange}
-                placeholder="John"
-                required={true}
-                disabled={!isEditing}
-                Icon={User}
-              />
-
-              <TextInput label="Last Name"
-                name="lastName"
-                value={currentUser.lastName}
-                onChange={handleChange}
-                placeholder="Doe"
-                required={true}
-                disabled={!isEditing}
-                Icon={User}
-              />
-
-              <TextInput label="Email Address"
-                name="email"
-                value={currentUser.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                disabled={true}
-                Icon={Mail}
-              />
-
-              <TextInput label="Mobile Number"
-                name="mobileNumber"
-                value={currentUser.mobileNumber}
-                onChange={handleChange}
-                placeholder="+1 (555) 123-4567"
-                disabled={!isEditing}
-                Icon={Phone}
-              />
-
-              <div className="md:col-span-2">
-                <TextInput
-                  label="Address"
-                  name="address"
-                  value={currentUser.address}
+                <TextInput label="First Name"
+                  name="firstName"
+                  value={currentUser.firstName}
                   onChange={handleChange}
-                  placeholder="123 Main St, City, Country"
+                  placeholder="John"
+                  required={true}
                   disabled={!isEditing}
-                  Icon={MapPin}
+                  Icon={User}
                 />
-              </div>
 
-            </div>
+                <TextInput label="Last Name"
+                  name="lastName"
+                  value={currentUser.lastName}
+                  onChange={handleChange}
+                  placeholder="Doe"
+                  required={true}
+                  disabled={!isEditing}
+                  Icon={User}
+                />
 
-            <div className="mt-2 flex justify-end">
-              {isEditing ? (
-                <div className="flex space-x-3">
-                  <ThemeButton
-                    btnLabel="CANCEL"
-                    onClick={handleCancel}
-                    extraClasses="bg-gray-500"
-                  />
-                  <ThemeButton
-                    btnLabel="SAVE CHANGES"
-                    extraClasses="min-w-40"
-                    isButtonLoading={isLoading}
-                    onClick={handleUpdateUserProfile}
+                <TextInput label="Email Address"
+                  name="email"
+                  value={currentUser.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  disabled={true}
+                  Icon={Mail}
+                />
+
+                <TextInput label="Mobile Number"
+                  name="mobileNumber"
+                  value={currentUser.mobileNumber}
+                  onChange={handleChange}
+                  placeholder="+1 (555) 123-4567"
+                  disabled={!isEditing}
+                  Icon={Phone}
+                />
+
+                <div className="md:col-span-2">
+                  <TextInput
+                    label="Address"
+                    name="address"
+                    value={currentUser.address}
+                    onChange={handleChange}
+                    placeholder="123 Main St, City, Country"
+                    disabled={!isEditing}
+                    Icon={MapPin}
                   />
                 </div>
-              ) : (
-                <ThemeButton
-                  btnLabel="EDIT PROFILE"
-                  onClick={() => setIsEditing(true)}
-                />
-              )}
+
+              </div>
+
+              <div className="mt-2 flex justify-end">
+                {isEditing ? (
+                  <div className="flex space-x-3">
+                    <ThemeButton
+                      btnLabel="CANCEL"
+                      onClick={handleCancel}
+                      extraClasses="bg-gray-500"
+                    />
+                    <ThemeButton
+                      btnLabel="SAVE CHANGES"
+                      extraClasses="min-w-40"
+                      isButtonLoading={isLoading}
+                      onClick={handleUpdateUserProfile}
+                    />
+                  </div>
+                ) : (
+                  <ThemeButton
+                    btnLabel="EDIT PROFILE"
+                    onClick={() => setIsEditing(true)}
+                  />
+                )}
+              </div>
+
             </div>
 
           </div>
@@ -275,8 +284,7 @@ const ProfilePage = () => {
         </div>
 
       </div>
-
-    </div>
+    </>
   );
 };
 

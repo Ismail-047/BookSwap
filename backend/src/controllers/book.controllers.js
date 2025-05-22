@@ -142,56 +142,94 @@ export const createBookRequest = async (req, res) => {
   }
 };
 
+export const getBookRequests = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-// // 3. Update the status of a book request
-// exports.updateBookRequestStatus = async (req, res) => {
-//   try {
-//     const { requestId, status } = req.body;
+    const requests = await BookRequest.find({
+      $or: [{ requester: userId }, { owner: userId }]
+    })
+      .populate("book", "title author") // Customize the fields you want
+      .populate("requester", "name email")
+      .populate("owner", "name email")
+      .sort({ createdAt: -1 });
 
-//     if (!["approved", "rejected"].includes(status)) {
-//       return res.status(400).json({ message: "Invalid status" });
-//     }
+    return sendRes(res, 200, "Book requests fetched successfully", requests);
+  } catch (error) {
+    logError("getBookRequests", error);
+    return sendRes(res, 500, "Something went wrong on our side. Please try again.");
+  }
+};
 
-//     if (!mongoose.Types.ObjectId.isValid(requestId)) {
-//       return res.status(400).json({ message: "Invalid request ID format" });
-//     }
+export const updateBookRequestStatus = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { status } = req.body;
+    const userId = req.user.id;
 
-//     const bookRequest = await BookRequest.findById(requestId);
-//     if (!bookRequest) {
-//       return res.status(404).json({ message: "Book request not found" });
-//     }
+    if (!["approved", "rejected"].includes(status)) {
+      return sendRes(res, 400, "Invalid status value");
+    }
 
-//     const book = await Book.findById(bookRequest.book);
-//     if (!book) {
-//       return res.status(404).json({ message: "Related book not found" });
-//     }
+    const request = await BookRequest.findById(requestId);
 
-//     if (book.owner.toString() !== req.user.id.toString()) {
-//       return res.status(403).json({ message: "Only the book owner can approve or reject requests" });
-//     }
+    if (!request) return sendRes(res, 404, "Book request not found");
 
-//     // Update status
-//     bookRequest.status = status;
+    if (request.owner.toString() !== userId) {
+      return sendRes(res, 403, "You are not authorized to update this request");
+    }
 
-//     if (status === "approved") {
-//       book.status = "unavailable";
-//       await book.save();
-//     }
+    if (request.status !== "pending") {
+      return sendRes(res, 400, "Request has already been processed");
+    }
 
-//     await bookRequest.save();
+    request.status = status;
+    await request.save();
 
-//     // ✅ Create notification for requester
-//     const notificationMessage = status === "approved"
-//       ? `Your request for "${book.title}" has been approved.`
-//       : `Your request for "${book.title}" has been rejected.`;
+    return sendRes(res, 200, `Book request ${status} successfully`, request);
+  } catch (error) {
+    logError("updateBookRequestStatus", error);
+    return sendRes(res, 500, "Something went wrong on our side. Please try again.");
+  }
+};
 
-//     await Notification.create({
-//       user: bookRequest.requester,
-//       message: notificationMessage
-//     });
 
-//     res.status(200).json({ message: `Request ${status} successfully`, bookRequest });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
+export const addReview = async (req, res) => {
+  try {
+    const { bookId, rating, comment } = req.body;
+    const userId = req.user.id;
+
+    const book = await Book.findById(bookId);
+    if (!book) return sendRes(res, 404, "Book not found");
+
+    const existingReview = await Review.findOne({ book: bookId, user: userId });
+    if (existingReview) return sendRes(res, 400, "You have already reviewed this book");
+
+    const review = await Review.create({
+      book: bookId,
+      user: userId,
+      rating,
+      comment
+    });
+
+    return sendRes(res, 201, "Review added successfully", review);
+  } catch (error) {
+    logError("addReview", error);
+    return sendRes(res, 500, "Something went wrong on our side. Please try again.");
+  }
+};
+
+export const getReviewsForBook = async (req, res) => {
+  try {
+    const { bookId } = req.params;
+
+    const reviews = await Review.find({ book: bookId })
+      .populate("user", "name email") // Customize as needed
+      .sort({ createdAt: -1 });
+
+    return sendRes(res, 200, "Reviews fetched successfully", reviews);
+  } catch (error) {
+    logError("getReviewsForBook", error);
+    return sendRes(res, 500, "Something went wrong on our side. Please try again.");
+  }
+};

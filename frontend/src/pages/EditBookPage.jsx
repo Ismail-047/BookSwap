@@ -4,6 +4,7 @@ import { ThemeButton } from "../components/Buttons";
 import { bookConditionEnum, bookGenreEnum } from "../constants.js";
 import useBookStore from "../zustand/book.store.js";
 import { useParams } from "react-router-dom";
+import Intro from "../components/Intro.jsx";
 
 const EditBookPage = () => {
     const { id } = useParams(); // 1. Get the ID from route params
@@ -193,151 +194,158 @@ const EditBookPage = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-4xl mx-auto p-6">
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    {/* Header */}
-                    <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                        <div>
-                            <h1 className="text-2xl font-semibold text-gray-800">Edit Book</h1>
-                            <p className="text-sm text-gray-500">{formattedDate}</p>
-                        </div>
-                        <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                            <Book size={20} />
-                        </div>
-                    </div>
+        <>
+            <Intro
+                heading="Edit Book"
+                description="Edit the details of the book."
+            />
 
-                    {/* Book Banner */}
-                    <div className="h-32 bg-gradient-to-r from-sky-100 to-indigo-100 relative" />
+            <div className="min-h-screen bg-gray-50">
+                <div className="animate-themeAnimationLg max-w-4xl mx-auto p-6">
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                        {/* Header */}
+                        <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                            <div>
+                                <h1 className="text-2xl font-semibold text-gray-800">Edit Book</h1>
+                                <p className="text-sm text-gray-500">{formattedDate}</p>
+                            </div>
+                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                                <Book size={20} />
+                            </div>
+                        </div>
 
-                    {/* Book Content */}
-                    <div className="px-6 pb-6">
-                        <div className="flex items-end justify-between -mt-24 mb-2">
-                            <div className="flex items-end">
-                                <div className="relative">
-                                    <div className="h-36 w-36 rounded-lg border-4 border-white bg-blue-100 flex items-center justify-center text-indigo-600 text-2xl overflow-hidden shadow-lg">
-                                        {preview ? (
-                                            <img src={preview} alt="Book Cover" className="h-full w-full object-cover" />
-                                        ) : image ? (
-                                            <img src={image} alt="Book Picture" className="h-full w-full object-contain" />
-                                        ) : (
-                                            <BookOpen size={40} />
-                                        )}
+                        {/* Book Banner */}
+                        <div className="h-32 bg-gradient-to-r from-sky-100 to-indigo-100 relative" />
+
+                        {/* Book Content */}
+                        <div className="px-6 pb-6">
+                            <div className="flex items-end justify-between -mt-24 mb-2">
+                                <div className="flex items-end">
+                                    <div className="relative">
+                                        <div className="h-36 w-36 rounded-lg border-4 border-white bg-blue-100 flex items-center justify-center text-indigo-600 text-2xl overflow-hidden shadow-lg">
+                                            {preview ? (
+                                                <img src={preview} alt="Book Cover" className="h-full w-full object-cover" />
+                                            ) : image ? (
+                                                <img src={image} alt="Book Picture" className="h-full w-full object-contain" />
+                                            ) : (
+                                                <BookOpen size={40} />
+                                            )}
+                                        </div>
+
+                                        <label className="absolute bottom-0 right-0 bg-indigo-400 text-white p-2.5 rounded-full shadow-md cursor-pointer hover:bg-indigo-600">
+                                            <Camera size={18} />
+                                            <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+                                        </label>
                                     </div>
-
-                                    <label className="absolute bottom-0 right-0 bg-indigo-400 text-white p-2.5 rounded-full shadow-md cursor-pointer hover:bg-indigo-600">
-                                        <Camera size={18} />
-                                        <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
-                                    </label>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="ml-4">
-                            <h2 className="text-xl font-semibold text-gray-800">{book.title || "Book Title"}</h2>
-                            <p className="text-gray-500 text-sm">by {book.author || "Author"}</p>
-                        </div>
+                            <div className="ml-4">
+                                <h2 className="text-xl font-semibold text-gray-800">{book.title || "Book Title"}</h2>
+                                <p className="text-gray-500 text-sm">by {book.author || "Author"}</p>
+                            </div>
 
-                        {/* Form Content */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-6">
-                            <TextInput
-                                label="Book Title"
-                                name="title"
-                                value={book.title}
-                                onChange={handleChange}
-                                placeholder="Enter book title"
-                                required={true}
-                                Icon={BookOpen}
-                            />
-
-                            <TextInput
-                                label="Author"
-                                name="author"
-                                value={book.author}
-                                onChange={handleChange}
-                                placeholder="Enter author name"
-                                required={true}
-                                Icon={User}
-                            />
-
-                            <SelectInput
-                                label="Genre"
-                                name="genre"
-                                value={book.genre}
-                                onChange={handleChange}
-                                options={bookGenreEnum}
-                                required={true}
-                                Icon={Tag}
-                            />
-
-                            <SelectInput
-                                label="Condition"
-                                name="condition"
-                                value={book.condition}
-                                onChange={handleChange}
-                                options={bookConditionEnum}
-                                required={true}
-                                Icon={PenLine}
-                            />
-
-                            <TextInput
-                                label="Location"
-                                name="location"
-                                value={book.location}
-                                onChange={handleChange}
-                                placeholder="Where is this book located?"
-                                required={true}
-                                Icon={MapPin}
-                            />
-
-                            <TextInput
-                                label="Publication Year"
-                                name="publicationYear"
-                                value={book.publicationYear}
-                                onChange={handleChange}
-                                placeholder="e.g. 2020"
-                                Icon={Calendar}
-                            />
-
-                            <div className="md:col-span-2">
+                            {/* Form Content */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-6">
                                 <TextInput
-                                    label="External URL"
-                                    name="externalURL"
-                                    value={book.externalURL}
+                                    label="Book Title"
+                                    name="title"
+                                    value={book.title}
                                     onChange={handleChange}
-                                    placeholder="e.g. Goodreads link"
-                                    Icon={Globe}
+                                    placeholder="Enter book title"
+                                    required={true}
+                                    Icon={BookOpen}
                                 />
-                            </div>
-                        </div>
 
-                        <div className="mt-2 flex justify-end">
-                            {isEditing ? (
-                                <div className="flex space-x-3">
-                                    <ThemeButton
-                                        btnLabel="CANCEL"
-                                        onClick={handleCancel}
-                                        extraClasses="bg-gray-500"
-                                    />
-                                    <ThemeButton
-                                        btnLabel="SAVE CHANGES"
-                                        extraClasses="min-w-40"
-                                        isButtonLoading={isLoading}
-                                        onClick={handleUpdateBook}
+                                <TextInput
+                                    label="Author"
+                                    name="author"
+                                    value={book.author}
+                                    onChange={handleChange}
+                                    placeholder="Enter author name"
+                                    required={true}
+                                    Icon={User}
+                                />
+
+                                <SelectInput
+                                    label="Genre"
+                                    name="genre"
+                                    value={book.genre}
+                                    onChange={handleChange}
+                                    options={bookGenreEnum}
+                                    required={true}
+                                    Icon={Tag}
+                                />
+
+                                <SelectInput
+                                    label="Condition"
+                                    name="condition"
+                                    value={book.condition}
+                                    onChange={handleChange}
+                                    options={bookConditionEnum}
+                                    required={true}
+                                    Icon={PenLine}
+                                />
+
+                                <TextInput
+                                    label="Location"
+                                    name="location"
+                                    value={book.location}
+                                    onChange={handleChange}
+                                    placeholder="Where is this book located?"
+                                    required={true}
+                                    Icon={MapPin}
+                                />
+
+                                <TextInput
+                                    label="Publication Year"
+                                    name="publicationYear"
+                                    value={book.publicationYear}
+                                    onChange={handleChange}
+                                    placeholder="e.g. 2020"
+                                    Icon={Calendar}
+                                />
+
+                                <div className="md:col-span-2">
+                                    <TextInput
+                                        label="External URL"
+                                        name="externalURL"
+                                        value={book.externalURL}
+                                        onChange={handleChange}
+                                        placeholder="e.g. Goodreads link"
+                                        Icon={Globe}
                                     />
                                 </div>
-                            ) : (
-                                <ThemeButton
-                                    btnLabel="EDIT BOOK"
-                                    onClick={() => setIsEditing(true)}
-                                />
-                            )}
-                        </div>
+                            </div>
 
+                            <div className="mt-2 flex justify-end">
+                                {isEditing ? (
+                                    <div className="flex space-x-3">
+                                        <ThemeButton
+                                            btnLabel="CANCEL"
+                                            onClick={handleCancel}
+                                            extraClasses="bg-gray-500"
+                                        />
+                                        <ThemeButton
+                                            btnLabel="SAVE CHANGES"
+                                            extraClasses="min-w-40"
+                                            isButtonLoading={isLoading}
+                                            onClick={handleUpdateBook}
+                                        />
+                                    </div>
+                                ) : (
+                                    <ThemeButton
+                                        btnLabel="EDIT BOOK"
+                                        onClick={() => setIsEditing(true)}
+                                    />
+                                )}
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

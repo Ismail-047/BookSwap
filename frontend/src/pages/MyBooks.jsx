@@ -31,7 +31,7 @@ const MyBooks = () => {
         description="Manage your books and add new ones."
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen">
+      <div className="animate-themeAnimationLg max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen">
 
         {isGettingAllBooks ? (
           <div className="flex justify-center items-center h-64">

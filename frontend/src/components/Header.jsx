@@ -12,7 +12,7 @@ function HeaderLink({
   to,
   Icon,
   label,
-  count,
+  count = undefined,
 }) {
   return (
     <NavLink to={to}
@@ -24,7 +24,7 @@ function HeaderLink({
 
       <span className="ml-2">{label}</span>
 
-      {count && (
+      {count !== null && count !== undefined && (
         <div className="ml-2 text-[11px] h-5 w-5 text-center bg-indigo-600 text-white rounded-full">
           {count}
         </div>

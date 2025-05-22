@@ -16,6 +16,11 @@ const useBookStore = create((set) => ({
     bookToRequest: null,
     setBookToRequest: (bookToRequest) => set({ bookToRequest }),
 
+    bookRequests: [],
+    setBookRequests: (bookRequests) => set({ bookRequests }),
+
+    bookReviews: [],
+    setBookReviews: (bookReviews) => set({ bookReviews }),
 
     isGettingAllBooks: false,
     getAllBooks: async () => {
@@ -100,6 +105,78 @@ const useBookStore = create((set) => ({
         }
         catch (error) {
             logError("updateBook", error);
+            toast.error(error.response?.data?.message || "Internal Server Error");
+        }
+    },
+
+    createBookRequest: async (bookId, message) => {
+        try {
+            const response = await axiosInstance.post("/api/v1/book-requests", {
+                bookId,
+                message
+            });
+
+            toast.success(response?.data?.message);
+        } catch (error) {
+            logError("createBookRequest", error);
+            toast.error(error.response?.data?.message || "Internal Server Error");
+        }
+    },
+
+    getBookRequests: async () => {
+        try {
+            const response = await axiosInstance.get("/api/v1/book-requests");
+
+            set({ bookRequests: response?.data?.data || [] });
+            toast.success(response?.data?.message);
+        } catch (error) {
+            logError("getBookRequests", error);
+            toast.error(error.response?.data?.message || "Internal Server Error");
+        }
+    },
+
+    updateBookRequestStatus: async (requestId, status) => {
+        try {
+            const response = await axiosInstance.patch(`/api/v1/book-requests/${requestId}`, {
+                status
+            });
+
+            set((prevState) => ({
+                bookRequests: prevState.bookRequests.map((req) =>
+                    req._id === requestId ? { ...req, status } : req
+                )
+            }));
+
+            toast.success(response?.data?.message);
+        } catch (error) {
+            logError("updateBookRequestStatus", error);
+            toast.error(error.response?.data?.message || "Internal Server Error");
+        }
+    },
+
+    addReview: async ({ bookId, rating, comment }) => {
+        try {
+            const response = await axiosInstance.post("/api/v1/reviews", {
+                bookId,
+                rating,
+                comment
+            });
+
+            toast.success(response?.data?.message);
+        } catch (error) {
+            logError("addReview", error);
+            toast.error(error.response?.data?.message || "Internal Server Error");
+        }
+    },
+
+    getReviewsForBook: async (bookId) => {
+        try {
+            const response = await axiosInstance.get(`/api/v1/reviews/${bookId}`);
+
+            set({ bookReviews: response?.data?.data || [] });
+            toast.success(response?.data?.message);
+        } catch (error) {
+            logError("getReviewsForBook", error);
             toast.error(error.response?.data?.message || "Internal Server Error");
         }
     },

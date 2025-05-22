@@ -45,7 +45,7 @@ const BookDetail = () => {
     }
 
     try {
-      await addToWishlist(book._id);
+      await addToWishlist(book?._id);
       setSuccess('Book added to your wishlist!');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -56,7 +56,7 @@ const BookDetail = () => {
   const handleSubmitRequest = async () => {
     try {
       setRequestLoading(true);
-      await createBookRequest(book._id, requestMessage);
+      await createBookRequest(book?._id, requestMessage);
       setSuccess('Book request sent successfully!');
       setShowRequestModal(false);
       setRequestMessage('');
@@ -74,7 +74,7 @@ const BookDetail = () => {
     setTimeout(() => setSuccess(null), 3000);
   };
 
-  const isOwner = book && currentUser && book.owner === currentUser.id;
+  const isOwner = book && authUser && book?.owner === authUser.id;
 
   if (loading) {
     return (
@@ -85,7 +85,7 @@ const BookDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Link to="/" className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center transition duration-300 ease-in-out">
@@ -96,80 +96,71 @@ const BookDetail = () => {
           </Link>
         </div>
 
-        {success && (
-          <Alert type="success" message={success} onClose={() => setSuccess(null)} />
-        )}
-
         <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-indigo-200 transition-all duration-300 hover:shadow-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-            <div className="md:col-span-1">
-              <div className="rounded-lg overflow-hidden shadow-lg border border-blue-200 transform transition-transform duration-300 hover:scale-[1.02]">
-                <img
-                  src={book.image}
-                  alt={book.title}
-                  className="w-full h-auto object-cover"
-                />
-              </div>
 
-              <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-5 shadow-inner border border-blue-100">
-                <h3 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-3 flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clipRule="evenodd"></path>
-                  </svg>
-                  Book Details
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <p className="flex justify-between items-center">
-                    <span className="text-gray-600 font-medium">Genre:</span>
-                    <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{book.genre}</span>
-                  </p>
-                  <p className="flex justify-between items-center">
-                    <span className="text-gray-600 font-medium">Condition:</span>
-                    <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{book.condition}</span>
-                  </p>
-                  <p className="flex justify-between items-center">
-                    <span className="text-gray-600 font-medium">Location:</span>
-                    <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{book.location}</span>
-                  </p>
-                  <p className="flex justify-between items-center">
-                    <span className="text-gray-600 font-medium">Listed:</span>
-                    <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{new Date(book.createdAt).toLocaleDateString()}</span>
-                  </p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+
+            <div className="rounded-lg overflow-hidden mt-5 transform transition-transform duration-300 hover:scale-[1.02]">
+              <img
+                src={book?.image}
+                alt={book?.title}
+                className="w-full h-auto object-cover"
+              />
             </div>
+
 
             <div className="md:col-span-2">
               <div className="p-2">
-                <h1 className="text-3xl font-bold text-indigo-900 leading-tight">{book.title}</h1>
-                <p className="text-xl text-indigo-600 mt-1">by {book.author}</p>
 
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
-                    {book.genre}
-                  </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                    {book.condition}
-                  </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    {book.location}
-                  </span>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl font-bold text-indigo-900 leading-tight">{book?.title}</h1>
+                  <p className="text-lg italic text-indigo-600 mt-1">by {book?.author}</p>
                 </div>
 
-                <div className="mt-6 text-gray-700 leading-relaxed">
-                  <p className="bg-white p-4 rounded-lg border-l-4 border-indigo-500 shadow-sm">{book.description}</p>
+                <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-5 shadow-inner border border-blue-100">
+                  <h3 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-3 flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clipRule="evenodd"></path>
+                    </svg>
+                    Book Details
+                  </h3>
+                  <div className="space-y-3 text-sm">
+                    <p className="flex justify-between items-center">
+                      <span className="text-gray-600 font-medium">Genre:</span>
+                      <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{book?.genre}</span>
+                    </p>
+                    <p className="flex justify-between items-center">
+                      <span className="text-gray-600 font-medium">Condition:</span>
+                      <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{book?.condition}</span>
+                    </p>
+                    <p className="flex justify-between items-center">
+                      <span className="text-gray-600 font-medium">Location:</span>
+                      <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{book?.location}</span>
+                    </p>
+                    <p className="flex justify-between items-center">
+                      <span className="text-gray-600 font-medium">Listed:</span>
+                      <span className="font-medium text-indigo-800 py-1 px-2 bg-blue-100 rounded-md">{new Date(book?.createdAt).toLocaleDateString()}</span>
+                    </p>
+                  </div>
                 </div>
 
                 <div className="mt-6 flex flex-col space-y-2 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 shadow-inner">
+
+
+
                   <p className="text-gray-700 flex items-center">
+
                     <svg className="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
                     </svg>
+
                     <span className="font-medium text-indigo-800">Owner:</span>
-                    <span className="ml-2">{book.ownerName || 'Unknown'}</span>
+
+                    <span className="ml-2">{book?.ownerName || 'Unknown'}</span>
+
                   </p>
 
-                  {book.externalURL && (
+                  {book?.externalURL && (
                     <p className="text-gray-700 flex items-center">
                       <svg className="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
@@ -177,7 +168,7 @@ const BookDetail = () => {
                       </svg>
                       <span className="font-medium text-indigo-800">External Link:</span>{' '}
                       <a
-                        href={book.externalURL}
+                        href={book?.externalURL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="ml-2 text-indigo-600 hover:text-indigo-800 underline transition duration-300"
@@ -208,7 +199,7 @@ const BookDetail = () => {
                 {isOwner && (
                   <div className="mt-8 flex flex-wrap gap-4">
                     <button
-                      onClick={() => navigate(`/books/${book._id}/edit`)}
+                      onClick={() => navigate(`/books/${book?._id}/edit`)}
                       variant="secondary"
                       className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                     >
@@ -230,7 +221,9 @@ const BookDetail = () => {
                 )}
               </div>
             </div>
+
           </div>
+
         </div>
 
         <div className="mt-10 bg-white shadow-xl rounded-xl p-6 border border-indigo-200 transition-all duration-300 hover:shadow-2xl">
@@ -257,19 +250,11 @@ const BookDetail = () => {
           </div>
 
           {showReviewForm && (
-            <div className="mb-8 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 shadow-inner">
-              <h3 className="text-lg font-medium text-indigo-800 mb-4 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                  <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd"></path>
-                </svg>
-                Share Your Thoughts
-              </h3>
-              <AddReview bookId={book._id} onSuccess={handleReviewAdded} onCancel={() => setShowReviewForm(false)} />
-            </div>
+
+            <AddReview bookId={book?._id} onSuccess={handleReviewAdded} onCancel={() => setShowReviewForm(false)} />
           )}
 
-          <ReviewList bookId={book._id} />
+          <ReviewList bookId={book?._id} />
         </div>
 
         {/* Book Request Modal */}
@@ -319,7 +304,7 @@ const BookDetail = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
