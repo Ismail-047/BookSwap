@@ -7,6 +7,8 @@ import { logError } from "../utils/comman.utils.js";
 import { BookRequest } from "../models/bookrequest.model.js";
 import { Review } from "../models/review.model.js";
 import { Notification } from "../models/notification.model.js";
+import { User } from "../models/user.model.js";
+import mongoose from "mongoose";
 
 export const addNewBook = async (req, res) => {
   try {
@@ -132,19 +134,29 @@ export const createBookRequest = async (req, res) => {
       return sendRes(res, 400, "You cannot request your own book");
     }
 
-    // Create book request and notification concurrently
-    const [bookRequest] = await Promise.all([
-      BookRequest.create({
-        book: id,
-        requester: loggedInUser._id,
-        owner: book.owner,
-        message,
-      }),
+    const bookRequest = await BookRequest.create({
+      book: id,
+      requester: loggedInUser._id,
+      owner: book.owner,
+      message,
+    });
+
+    await Promise.all([
+      User.findByIdAndUpdate(
+        loggedInUser._id,
+        { $push: { sentRequests: bookRequest._id } }
+      ),
+
+      User.findByIdAndUpdate(
+        book.owner,
+        { $push: { receivedRequests: bookRequest._id } }
+      ),
+
       Notification.create({
         from: loggedInUser._id,
         to: book.owner,
-        message: `${loggedInUser.name} has requested your book.`,
-      })
+        message: `${loggedInUser.firstName} ${loggedInUser.lastName} has requested your book.`,
+      }),
     ]);
 
     return sendRes(res, 201, "Book request created successfully", bookRequest);
@@ -175,19 +187,19 @@ export const getBookRequests = async (req, res) => {
 
 export const updateBookRequestStatus = async (req, res) => {
   try {
-    const { requestId } = req.params;
+    const { id } = req.params;
     const { status } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     if (!["approved", "rejected"].includes(status)) {
       return sendRes(res, 400, "Invalid status value");
     }
 
-    const request = await BookRequest.findById(requestId);
+    const request = await BookRequest.findById(id);
 
     if (!request) return sendRes(res, 404, "Book request not found");
 
-    if (request.owner.toString() !== userId) {
+    if (request.owner.toString() !== userId.toString()) {
       return sendRes(res, 403, "You are not authorized to update this request");
     }
 
@@ -261,3 +273,54 @@ export const getReviewsForBook = async (req, res) => {
     return sendRes(res, 500, "Something went wrong on our side. Please try again.");
   }
 };
+
+export const cancelBookRequest = async (req, res) => {
+  try {
+    const { id } = req.params; // ID of the BookRequest
+    const loggedInUser = req.user;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return sendRes(res, 400, "Invalid request ID format");
+    }
+
+    const request = await BookRequest.findById(id);
+    if (!request) return sendRes(res, 404, "Book request not found");
+
+    // Only the requester can cancel their own request
+    if (request.requester.toString() !== loggedInUser._id.toString()) {
+      return sendRes(res, 403, "You are not authorized to cancel this request");
+    }
+
+    // Delete the book request
+    await BookRequest.findByIdAndDelete(id);
+
+    // Perform cleanup concurrently
+    await Promise.all([
+      // Remove from requester's sentRequests
+      User.findByIdAndUpdate(
+        request.requester,
+        { $pull: { sentRequests: id } }
+      ),
+
+      // Remove from owner's receivedRequests
+      User.findByIdAndUpdate(
+        request.owner,
+        { $pull: { receivedRequests: id } }
+      ),
+
+      // Optionally: Remove related notification (if needed)
+      Notification.deleteMany({
+        from: request.requester,
+        to: request.owner,
+        message: { $regex: "has requested your book", $options: "i" }
+      })
+    ]);
+
+    return sendRes(res, 200, "Book request cancelled successfully");
+  } catch (error) {
+    logError("cancelBookRequest", error);
+    return sendRes(res, 500, "Something went wrong on our side. Please try again.");
+  }
+};
+
+

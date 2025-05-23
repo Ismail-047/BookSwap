@@ -1,7 +1,7 @@
 import express from "express";
 import { authenticateToken } from "../middlewares/authenticateToken.js";
 import { upload } from "../middlewares/multer.js";
-import { addNewBook, addReview, createBookRequest, deleteBookById, getAllBooks, getBookRequests, getReviewsForBook, updateBook, updateBookRequestStatus } from "../controllers/book.controllers.js";
+import { addNewBook, addReview, createBookRequest, deleteBookById, getAllBooks, getBookRequests, getReviewsForBook, updateBook, updateBookRequestStatus, cancelBookRequest } from "../controllers/book.controllers.js";
 
 const router = express.Router();
 
@@ -15,9 +15,11 @@ router.delete("/delete-book/:id", authenticateToken, deleteBookById);
 
 router.post("/request-book/:id", authenticateToken, createBookRequest);
 
+router.post("/cancel-request/:id", authenticateToken, cancelBookRequest);
+
 router.get("/get-book-requests", authenticateToken, getBookRequests);
 
-router.patch("/update-book-request-status", authenticateToken, updateBookRequestStatus);
+router.patch("/update-book-request-status/:id", authenticateToken, updateBookRequestStatus);
 
 router.post("/add-review/:bookId", authenticateToken, addReview);
 

@@ -135,7 +135,35 @@ export const loginUser = async (req, res) => {
 
         // IS USER EXISTS
         const user = await User.findOne({ email })
-            .select("-isUserVerified -emailVerificationCode -verificationCodeExpiresAt -resetPassToken -resetPassTokenExpiresAt");
+            .select("-isUserVerified -emailVerificationCode -verificationCodeExpiresAt -resetPassToken -resetPassTokenExpiresAt")
+            .populate({
+                path: 'sentRequests',
+                select: '_id book owner message status createdAt',
+                populate: [
+                    {
+                        path: 'book',
+                        select: 'title author image'
+                    },
+                    {
+                        path: 'owner',
+                        select: 'firstName lastName profilePic'
+                    }
+                ]
+            })
+            .populate({
+                path: 'receivedRequests',
+                select: '_id book requester message status createdAt',
+                populate: [
+                    {
+                        path: 'book',
+                        select: 'title author image'
+                    },
+                    {
+                        path: 'requester',
+                        select: 'firstName lastName profilePic'
+                    }
+                ]
+            });
         if (!user) return sendRes(res, 400, "No account is associated with the provided email address.");
 
         // CHECK PASSWORD
@@ -227,7 +255,38 @@ export const logoutUser = async (req, res) => {
 export const checkAuth = async (req, res) => {
     try {
         const { user } = req;
-        return sendRes(res, 200, "User found.", user);
+        const populatedUser = await User.findById(user._id)
+            .select("-isUserVerified -emailVerificationCode -verificationCodeExpiresAt -resetPassToken -resetPassTokenExpiresAt")
+            .populate({
+                path: 'sentRequests',
+                select: '_id book owner message status createdAt',
+                populate: [
+                    {
+                        path: 'book',
+                        select: 'title author image'
+                    },
+                    {
+                        path: 'owner',
+                        select: 'firstName lastName profilePic'
+                    }
+                ]
+            })
+            .populate({
+                path: 'receivedRequests',
+                select: '_id book requester message status createdAt',
+                populate: [
+                    {
+                        path: 'book',
+                        select: 'title author image'
+                    },
+                    {
+                        path: 'requester',
+                        select: 'firstName lastName profilePic'
+                    }
+                ]
+            });
+
+        return sendRes(res, 200, "User found.", populatedUser);
     }
     catch (error) {
         logError("checkAuth", error);

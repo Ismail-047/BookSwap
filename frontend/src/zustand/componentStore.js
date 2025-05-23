@@ -17,6 +17,9 @@ const useComponentStore = create((set) => ({
 
     bookToRequest: null,
     setBookToRequest: (bookToRequest) => set({ bookToRequest }),
+
+    disMessageModal: false,
+    setDisMessageModal: (disMessageModal) => set({ disMessageModal }),
 }));
 
 export default useComponentStore;

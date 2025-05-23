@@ -122,6 +122,16 @@ const useBookStore = create((set) => ({
         }
     },
 
+    cancelBookRequest: async (requestId) => {
+        try {
+            const response = await axiosInstance.post(`/api/v1/books/cancel-request/${requestId}`);
+            toast.success(response?.data?.message);
+        } catch (error) {
+            logError("cancelBookRequest", error);
+            toast.error(error.response?.data?.message || "Internal Server Error");
+        }
+    },
+
     getBookRequests: async () => {
         try {
             const response = await axiosInstance.get("/api/v1/book-requests");
@@ -136,7 +146,7 @@ const useBookStore = create((set) => ({
 
     updateBookRequestStatus: async (requestId, status) => {
         try {
-            const response = await axiosInstance.patch(`/api/v1/book-requests/${requestId}`, {
+            const response = await axiosInstance.patch(`/api/v1/books/update-book-request-status/${requestId}`, {
                 status
             });
 

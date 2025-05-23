@@ -50,6 +50,7 @@ const useAuthStore = create((set, get) => ({
          const response = await axiosInstance.get("/api/v1/auth/check-auth"); // GET REQUEST
          set({ authUser: response.data.data, isAuthenticated: true });
          console.log(response.data.data);
+         get().connectSocket(); // <-- Add this line
          // UPDATE STATE
       } catch {
          // logError("checkAuth function (zustand)", error);
@@ -64,6 +65,7 @@ const useAuthStore = create((set, get) => ({
       try {
          const response = await axiosInstance.post("/api/v1/auth/login", { email, password, }); // POST REQUEST
          set({ authUser: response.data.data, isAuthenticated: true });
+         get().connectSocket();
          toast.success(response?.data?.message); // SET USER ON SUCCESS LOGIN
          navigateTo("/explore"); // NAVIGATE TO EXPLORE PAGE
       } catch (error) {
@@ -92,6 +94,7 @@ const useAuthStore = create((set, get) => ({
          const response = await axiosInstance.get("/api/v1/auth/logout"); // GET REQUEST
          toast.success(response?.data?.message); // ALERT SUCCESS
          set({ isAuthenticated: false, authUser: null }); // UPDATE STATES
+         await get().disconnectSocket();
          window.location.reload(); // RELOAD PAGE
       } catch (error) {
          logError("logoutUser function (zustand)", error); // ALERT ERROR
@@ -142,6 +145,7 @@ const useAuthStore = create((set, get) => ({
       try {
          await axiosInstance.delete("/api/v1/auth/delete-user"); // DELETE REQUEST
          set({ authUser: null, isAuthenticated: false }); // UPDATE STATE
+         await get().disconnectSocket();
          window.location.reload(); // RELOAD PAGE
       } catch (error) {
          logError("deleteUser function (zustand)", error); // LOG ERROR
@@ -180,6 +184,13 @@ const useAuthStore = create((set, get) => ({
    disconnectSocket: async () => {
       // If connected, than only try to disconnect
       if (get().socket?.connected) get().socket.disconnect();
+   },
+
+   stopListeningNewMessages: () => {
+      const { socket } = useAuthStore.getState();
+      if (socket) {
+         socket.off("newMessage");
+      }
    },
 
 }));

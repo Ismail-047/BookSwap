@@ -30,12 +30,14 @@ import MainLoadingPage from "./pages/MainLoadingPage";
 import ResetPassword from "./components/Auth/ResetPassword";
 import RequestPasswordReset from "./pages/Auth/RequestPasswordReset";
 import NotificationPage from "./pages/NotificatioPage";
-
+import Messaging from "./components/Messaging";
+import useUserStore from "./zustand/userStore";
 const App = () => {
 
   const { displayConfirmation } = useComponentStore();
   const { allBooks, setLoggedInUserBooks, getAllBooks, bookToRequest } = useBookStore();
   const { authUser, checkAuth, isCheckingAuth, isAuthenticated } = useAuthStore();
+  const { listenToNewMessages } = useUserStore();
 
   useEffect(() => {
     checkAuth();
@@ -43,6 +45,10 @@ const App = () => {
 
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+
+  useEffect(() => {
+    listenToNewMessages();
+  }, [listenToNewMessages]);
 
   useEffect(() => {
     if (isAuthenticated)
@@ -61,6 +67,7 @@ const App = () => {
 
       <Header />
 
+      <Messaging />
       {displayConfirmation && <Confirmation />}
       {bookToRequest && <BookRequest />}
 

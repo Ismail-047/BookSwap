@@ -1,65 +1,8 @@
 import { useState, useEffect } from "react";
 import { Bell, CircleCheck, Clock, User } from "lucide-react";
 import Intro from "../components/Intro";
+import axiosInstance from "../lib/axios";
 
-// Sample notification data (in a real app, you"d fetch this from your API)
-// const sampleNotifications = [
-//   {
-//     _id: "1",
-//     from: {
-//       _id: "101",
-//       name: "Sarah Johnson",
-//       avatar: "/api/placeholder/40/40"
-//     },
-//     message: "Sent you a friend request",
-//     isRead: false,
-//     createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString() // 5 minutes ago
-//   },
-//   {
-//     _id: "2",
-//     from: {
-//       _id: "102",
-//       name: "David Miller",
-//       avatar: "/api/placeholder/40/40"
-//     },
-//     message: "Commented on your post",
-//     isRead: false,
-//     createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString() // 15 minutes ago
-//   },
-//   {
-//     _id: "3",
-//     from: {
-//       _id: "103",
-//       name: "Alex Thompson",
-//       avatar: "/api/placeholder/40/40"
-//     },
-//     message: "Mentioned you in a comment",
-//     isRead: false,
-//     createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString() // 1 hour ago
-//   },
-//   {
-//     _id: "4",
-//     from: {
-//       _id: "104",
-//       name: "Emma Williams",
-//       avatar: "/api/placeholder/40/40"
-//     },
-//     message: "Invited you to join a new group",
-//     isRead: true,
-//     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() // 3 hours ago
-//   },
-//   {
-//     _id: "5",
-//     from: {
-//       _id: "105",
-//       name: "Michael Brown",
-//       avatar: "/api/placeholder/40/40"
-//     },
-//     message: "Liked your recent photo",
-//     isRead: true,
-//     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() // 1 day ago
-//   }
-// ];
 
 const NoNotifications = ({
   filter
@@ -101,14 +44,14 @@ export default function NotificationPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // "all", "unread", "read"
 
-  // Simulate fetching notifications
   useEffect(() => {
-    // In a real app, you would fetch from your API here
-    setLoading(true);
-    setTimeout(() => {
-      setNotifications([]);
+    const fetchNotifications = async () => {
+      const response = await axiosInstance.get("/api/v1/user/get-all-notifications");
+      setNotifications(response.data.data);
+      console.log(response.data.data);
       setLoading(false);
-    }, 800);
+    }
+    fetchNotifications();
   }, []);
 
   // Mark a notification as read

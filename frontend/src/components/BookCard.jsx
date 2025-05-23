@@ -3,6 +3,7 @@ import { Bookmark, Edit2, Trash2, Heart, BookOpen, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useUserStore from '../zustand/userStore';
 import useBookStore from '../zustand/book.store';
+
 const BookCard = ({ book, showOwnerControls = false, onEdit, onDelete }) => {
 
   const { setBookToRequest } = useBookStore();
